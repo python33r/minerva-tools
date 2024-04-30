@@ -15,7 +15,9 @@ NAME_FORMAT = re.compile(
 
 
 def parse_command_line() -> Namespace:
-    parser = ArgumentParser()
+    parser = ArgumentParser(
+        description="Extracts assignment submissions from a Zip archive."
+    )
     parser.add_argument("zipname", help="Name of Zip archive containing submissions")
     return parser.parse_args()
 
