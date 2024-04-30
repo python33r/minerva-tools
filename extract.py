@@ -7,7 +7,13 @@ from argparse import ArgumentParser, Namespace
 from datetime import datetime
 from pathlib import Path
 from zipfile import ZipFile, is_zipfile
-from rich.progress import track
+
+try:
+    from rich.progress import track
+except ImportError:
+    # Allow tool to run even if Rich is unavailable
+    def track(names: list, description: str) -> None:
+        return names
 
 
 class AssignmentExtractor:
@@ -16,12 +22,12 @@ class AssignmentExtractor:
         r"(.+)_(\w+)_attempt_(\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}).(.+)"
     )
 
-    def __init__(self, zip_path, deadline: str = None) -> None:
-        if not is_zipfile(zip_path):
+    def __init__(self, zpath: str, deadline: str = None) -> None:
+        if not is_zipfile(zpath):
             raise FileNotFoundError(
-                f"'{zip_path}' does not exist or is not a valid Zip archive"
+                f"'{zpath}' does not exist or is not a valid Zip archive"
             )
-        self.zip_path = zip_path
+        self.zip_path = zpath
         if deadline:
             self.deadline = datetime.strptime(deadline, "%Y-%m-%d:%H:%M")
         else:
