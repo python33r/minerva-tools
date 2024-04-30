@@ -2,8 +2,9 @@
 
 import re
 import sys
+import textwrap
 
-from argparse import ArgumentParser, Namespace
+from argparse import ArgumentParser, Namespace, RawDescriptionHelpFormatter
 from datetime import datetime
 from pathlib import Path
 from zipfile import ZipFile, is_zipfile
@@ -16,13 +17,27 @@ except ImportError:
         return names
 
 
+LATE_FILE = "late.txt"
+
+
 class AssignmentExtractor:
+    """
+    Submission extractor for Minerva Assignments.
+    """
+
     # regexp for the names of archive members
     NAME_FORMAT = re.compile(
         r"(.+)_(\w+)_attempt_(\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}).(.+)"
     )
 
     def __init__(self, zpath: str, deadline: str = None) -> None:
+        """
+        Creates an AssignmentExtractor for a Zip archive with the given path.
+
+        The assignment deadline can optionally be specified, in YYYY-MM-DD:hh:mm
+        format. If this is done, the extractor will collect information on late
+        submissions as part of the extraction process.
+        """
         if not is_zipfile(zpath):
             raise FileNotFoundError(
                 f"'{zpath}' does not exist or is not a valid Zip archive"
@@ -35,6 +50,9 @@ class AssignmentExtractor:
         self.late = {}
 
     def extract(self) -> None:
+        """
+        Runs the extraction process on an Assignment Zip archive.
+        """
         with ZipFile(self.zip_path) as zfile:
             names = zfile.namelist()
             for name in track(names, description="Extracting:"):
@@ -50,6 +68,10 @@ class AssignmentExtractor:
                     filepath.write_bytes(data)
 
     def write_lateness(self, filename: str) -> None:
+        """
+        Writes information on late submissions to the given file, if such
+        information was collected during extraction.
+        """
         if self.late:
             with open(filename, "wt") as outfile:
                 for username, lateness in sorted(self.late.items()):
@@ -58,7 +80,17 @@ class AssignmentExtractor:
 
 def parse_command_line() -> Namespace:
     parser = ArgumentParser(
-        description="Extracts assignment submissions from a Zip archive."
+        formatter_class=RawDescriptionHelpFormatter,
+        description=textwrap.dedent(f"""
+        Extracts submissions from an Assignment Zip archive.
+
+        A destination directory is created, named after the assignment. Within
+        this directory are subdirectories, one for each student, containing that
+        student's submitted files.
+
+        If a deadline is specified, information on late submissions will be
+        collected and written to the file '{LATE_FILE}'.
+        """)
     )
     parser.add_argument("zip_path", help="path to Zip archive containing submissions")
     parser.add_argument(
@@ -72,6 +104,6 @@ if __name__ == "__main__":
     try:
         extractor = AssignmentExtractor(args.zip_path, args.deadline)
         extractor.extract()
-        extractor.write_lateness("late.txt")
+        extractor.write_lateness(LATE_FILE)
     except Exception as error:
         sys.exit(f"Error: {error}")
