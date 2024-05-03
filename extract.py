@@ -66,12 +66,11 @@ class AssignmentExtractor:
                         self.late[username] = submitted - self.deadline
                     dirpath = Path(assignment.lower()) / username
                     dirpath.mkdir(parents=True, exist_ok=True)
-                    data = zfile.read(name)
                     filepath = dirpath / filename
-                    filepath.write_bytes(data)
+                    filepath.write_bytes(zfile.read(name))
         if self.verbose:
             print()
-            print(f"{len(self.usernames)} submissions processed")
+            print(f"{len(self.usernames)} submitters processed")
 
     def write_lateness(self, filename: str) -> None:
         """
