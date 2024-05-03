@@ -95,7 +95,8 @@ def parse_command_line() -> Namespace:
 
         A destination directory is created, named after the assignment. Within
         this directory are subdirectories, one for each student, containing that
-        student's submitted files.
+        student's submitted files. Student usernames are used as the names
+        of these subdirectories.
 
         If a deadline is specified, information on late submissions will be
         collected and written to the file '{LATE_FILE}'.
