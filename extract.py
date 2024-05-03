@@ -13,7 +13,7 @@ try:
     from rich.progress import track
 except ImportError:
     # Allow tool to run even if Rich is unavailable
-    def track(names: list, description: str) -> None:
+    def track(names: list, description: str) -> list:
         return names
 
 
