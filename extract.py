@@ -17,7 +17,7 @@ except ImportError:
         return names
 
 
-LATE_FILE = "late.txt"
+DEFAULT_LATE_FILE = "late.txt"
 
 
 class AssignmentExtractor:
@@ -61,13 +61,16 @@ class AssignmentExtractor:
                 if match := self.NAME_FORMAT.match(name):
                     assignment, username, time, filename = match.groups()
                     self.usernames.add(username)
+
                     submitted = datetime.strptime(time, "%Y-%m-%d-%H-%M-%S")
                     if self.deadline and submitted > self.deadline:
                         self.late[username] = submitted - self.deadline
+
                     dirpath = Path(assignment.lower()) / username
                     dirpath.mkdir(parents=True, exist_ok=True)
                     filepath = dirpath / filename
                     filepath.write_bytes(zfile.read(name))
+
         if self.verbose:
             print()
             print(f"{len(self.usernames)} submitters processed")
@@ -114,7 +117,7 @@ def parse_command_line() -> Namespace:
     )
     parser.add_argument(
         "--latefile",
-        default=LATE_FILE,
+        default=DEFAULT_LATE_FILE,
         metavar="FILE",
         help="name of lateness file (default: %(default)s)",
     )
