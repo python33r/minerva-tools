@@ -89,7 +89,7 @@ class AssignmentExtractor:
 def parse_command_line() -> Namespace:
     parser = ArgumentParser(
         formatter_class=RawDescriptionHelpFormatter,
-        description=textwrap.dedent(f"""
+        description=textwrap.dedent("""
         Extracts submissions from an Assignment Zip archive.
 
         A destination directory is created, named after the assignment. Within
@@ -98,7 +98,7 @@ def parse_command_line() -> Namespace:
         of these subdirectories.
 
         If a deadline is specified, information on late submissions will be
-        collected and written to the file '{LATE_FILE}'.
+        collected and written to a file.
         """),
     )
     parser.add_argument("zip_path", help="path to Zip archive containing submissions")
@@ -112,14 +112,21 @@ def parse_command_line() -> Namespace:
     parser.add_argument(
         "--deadline", metavar="TIME", help="assignment deadline (YYYY-MM-DD:hh:mm)"
     )
+    parser.add_argument(
+        "--latefile",
+        default=LATE_FILE,
+        metavar="FILE",
+        help="name of lateness file (default: %(default)s)",
+    )
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_command_line()
+    print(args)
     try:
         extractor = AssignmentExtractor(args.zip_path, args.deadline, args.verbose)
         extractor.extract()
-        extractor.write_lateness(LATE_FILE)
+        extractor.write_lateness(args.latefile)
     except Exception as error:
         sys.exit(f"Error: {error}")
