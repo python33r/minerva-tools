@@ -127,7 +127,6 @@ def parse_command_line() -> Namespace:
 
 if __name__ == "__main__":
     args = parse_command_line()
-    print(args)
     try:
         extractor = AssignmentExtractor(args.zip_path, args.deadline, args.verbose)
         extractor.extract()
