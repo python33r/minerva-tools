@@ -66,7 +66,8 @@ class AssignmentExtractor:
                     if self.deadline and submitted > self.deadline:
                         self.late[username] = submitted - self.deadline
 
-                    dirpath = Path(assignment.lower()) / username
+                    basedir = re.sub(r"\s+", "_", assignment.lower())
+                    dirpath = Path(basedir) / username
                     dirpath.mkdir(parents=True, exist_ok=True)
                     filepath = dirpath / filename
                     filepath.write_bytes(zfile.read(name))
@@ -83,7 +84,7 @@ class AssignmentExtractor:
         if self.late:
             with open(filename, "wt") as outfile:
                 for username, lateness in sorted(self.late.items()):
-                    print(f"{username:>9s}: {lateness}", file=outfile)
+                    print(f"{username:>8s}: {lateness}", file=outfile)
             if self.verbose:
                 print(f"{len(self.late)} late submissions")
                 print(f"Lateness information written to {filename}")
