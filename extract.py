@@ -30,6 +30,8 @@ class AssignmentExtractor:
         r"(.+)_(\w+)_attempt_(\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}).(.+)"
     )
 
+    SPACES = re.compile(r"\s+")
+
     def __init__(self, zpath: str, deadline: str = None, verbose: bool = False) -> None:
         """
         Creates an AssignmentExtractor for a Zip archive with the given path.
@@ -66,7 +68,7 @@ class AssignmentExtractor:
                     if self.deadline and submitted > self.deadline:
                         self.late[username] = submitted - self.deadline
 
-                    basedir = re.sub(r"\s+", "_", assignment.lower())
+                    basedir = self.SPACES.sub("_", assignment.lower())
                     dirpath = Path(basedir) / username
                     dirpath.mkdir(parents=True, exist_ok=True)
                     filepath = dirpath / filename
